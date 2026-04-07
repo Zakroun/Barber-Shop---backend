@@ -1,3 +1,4 @@
+// api/contact.js
 const connectDB = require('../config/db');
 const transporter = require('../config/mailer');
 const Contact = require('../models/Contact');
@@ -15,79 +16,71 @@ module.exports = async (req, res) => {
     try {
         await connectDB();
 
-        let {
-            name,
-            email,
-            phone,
-            service,
-            date,
-            message,
-            language
-        } = req.body;
+        let { name, email, phone, service, date, message, language } = req.body;
 
-        // 🔥 FIX: sanitize + default values
-        name = name?.trim();
-        email = email?.trim();
-        phone = phone || '';
-        service = service || '';
-        date = date || '';
-        message = message || '';
-        language = language === 'en' ? 'en' : 'fr'; // default FR
+        name     = name?.trim();
+        email    = email?.trim()?.toLowerCase(); // ✅ normalize email
+        phone    = phone?.trim()   || '';
+        service  = service?.trim() || '';
+        date     = date?.trim()    || '';
+        message  = message?.trim() || '';
+        language = language === 'en' ? 'en' : 'fr';
 
-        // validation
         if (!name || !email) {
             return res.status(400).json({
                 success: false,
-                message: 'Name and email required',
+                message: 'Name and email are required',
             });
         }
 
-        // save DB
+        // ✅ basic email format check
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid email address',
+            });
+        }
+
         const contact = await Contact.create({
-            name,
-            email,
-            phone,
-            service,
-            date,
-            message,
-            language,
+            name, email, phone, service, date, message, language,
         });
+
+        // ✅ use plain object so templates get clean data
+        const data = contact.toObject();
 
         // owner email
         await transporter.sendMail({
-            from: process.env.SMTP_USER,
+            from: `"Barber Royale" <${process.env.SMTP_USER}>`, // ✅ friendly name
             to: process.env.OWNER_EMAIL,
-            subject: 'New Reservation',
-            html: ownerTemplate(contact),
+            subject: '💈 New Reservation — Barber Royale',
+            html: ownerTemplate(data),
         });
 
         // client email
-        const html =
-            language === 'en'
-                ? clientTemplateEN(contact)
-                : clientTemplateFR(contact);
-
         await transporter.sendMail({
-            from: process.env.SMTP_USER,
+            from: `"Barber Royale" <${process.env.SMTP_USER}>`,
             to: email,
-            subject:
-                language === 'en'
-                    ? 'Booking Confirmation'
-                    : 'Confirmation de réservation',
-            html,
+            subject: language === 'en'
+                ? '✅ Booking Confirmation — Barber Royale'
+                : '✅ Confirmation de réservation — Barber Royale',
+            html: language === 'en' ? clientTemplateEN(data) : clientTemplateFR(data),
         });
 
         res.status(200).json({
             success: true,
             message: 'Message sent successfully',
-            data: contact,
+            data,
         });
 
     } catch (error) {
-        console.error(error);
+        console.error('[Contact API Error]', error);
+        // ✅ don't leak internal error details to client in production
         res.status(500).json({
             success: false,
-            message: error.message,
+            message: process.env.NODE_ENV === 'development'
+                ? error.message
+                : 'Something went wrong. Please try again.',
         });
     }
 };
