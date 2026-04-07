@@ -8,17 +8,13 @@ if (!cached) {
 }
 
 const connectDB = async () => {
-    if (cached.conn) {
-        return cached.conn;
-    }
+    if (cached.conn) return cached.conn;
 
     if (!cached.promise) {
         if (!process.env.MONGO_URI) throw new Error('MONGO_URI is not defined');
-        const opts = {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        };
-        cached.promise = mongoose.connect(process.env.MONGO_URI, opts).then((mongoose) => mongoose);
+
+        // 🔥 mongoose v7+ ما يحتاجش options useNewUrlParser/useUnifiedTopology
+        cached.promise = mongoose.connect(process.env.MONGO_URI).then((mongoose) => mongoose);
     }
 
     cached.conn = await cached.promise;
