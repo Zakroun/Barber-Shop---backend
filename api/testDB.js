@@ -1,5 +1,4 @@
 // api/testDB.js
-require('dotenv').config();
 const connectDB = require('../config/db');
 const Contact = require('../models/Contact');
 
@@ -7,10 +6,8 @@ module.exports = async (req, res) => {
     if (req.method !== 'GET') return res.status(405).json({ message: 'Method not allowed' });
 
     try {
-        await connectDB(); // 🟢 reuse connection
-
+        await connectDB();
         const contacts = await Contact.find().sort({ createdAt: -1 }).limit(10);
-
         res.status(200).json({
             success: true,
             count: contacts.length,

@@ -2,7 +2,6 @@
 const mongoose = require('mongoose');
 
 let cached = global.mongoose;
-
 if (!cached) {
     cached = global.mongoose = { conn: null, promise: null };
 }
@@ -13,8 +12,10 @@ const connectDB = async () => {
     if (!cached.promise) {
         if (!process.env.MONGO_URI) throw new Error('MONGO_URI is not defined');
 
-        // 🔥 mongoose v7+ ما يحتاجش options useNewUrlParser/useUnifiedTopology
-        cached.promise = mongoose.connect(process.env.MONGO_URI).then((mongoose) => mongoose);
+        cached.promise = mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 5000, // ⏱ fail fast instead of hanging
+            connectTimeoutMS: 10000,
+        }).then((m) => m);
     }
 
     cached.conn = await cached.promise;
