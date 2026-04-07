@@ -1,9 +1,14 @@
 // api/testDB.js
+const cors = require('../config/cors');
 const connectDB = require('../config/db');
 const Contact = require('../models/Contact');
 
 module.exports = async (req, res) => {
-    if (req.method !== 'GET') return res.status(405).json({ message: 'Method not allowed' });
+    if (cors(req, res)) return;
+
+    if (req.method !== 'GET') {
+        return res.status(405).json({ message: 'Method not allowed' });
+    }
 
     try {
         await connectDB();

@@ -1,4 +1,5 @@
 // api/contact.js
+const cors = require('../config/cors');
 const connectDB = require('../config/db');
 const transporter = require('../config/mailer');
 const Contact = require('../models/Contact');
@@ -9,6 +10,8 @@ const {
 } = require('../utils/emailTemplates');
 
 module.exports = async (req, res) => {
+    if (cors(req, res)) return;
+
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -19,7 +22,7 @@ module.exports = async (req, res) => {
         let { name, email, phone, service, date, message, language } = req.body;
 
         name     = name?.trim();
-        email    = email?.trim()?.toLowerCase(); // ✅ normalize email
+        email    = email?.trim()?.toLowerCase();
         phone    = phone?.trim()   || '';
         service  = service?.trim() || '';
         date     = date?.trim()    || '';
@@ -33,7 +36,6 @@ module.exports = async (req, res) => {
             });
         }
 
-        // ✅ basic email format check
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return res.status(400).json({
@@ -46,18 +48,15 @@ module.exports = async (req, res) => {
             name, email, phone, service, date, message, language,
         });
 
-        // ✅ use plain object so templates get clean data
         const data = contact.toObject();
 
-        // owner email
         await transporter.sendMail({
-            from: `"Barber Royale" <${process.env.SMTP_USER}>`, // ✅ friendly name
+            from: `"Barber Royale" <${process.env.SMTP_USER}>`,
             to: process.env.OWNER_EMAIL,
             subject: '💈 New Reservation — Barber Royale',
             html: ownerTemplate(data),
         });
 
-        // client email
         await transporter.sendMail({
             from: `"Barber Royale" <${process.env.SMTP_USER}>`,
             to: email,
@@ -75,7 +74,6 @@ module.exports = async (req, res) => {
 
     } catch (error) {
         console.error('[Contact API Error]', error);
-        // ✅ don't leak internal error details to client in production
         res.status(500).json({
             success: false,
             message: process.env.NODE_ENV === 'development'
