@@ -1,18 +1,15 @@
-<!-- public/index.html -->
+// api/home.js
+module.exports = (req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.status(200).send(`
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barber Royale API</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #111;
             color: #fff;
@@ -22,26 +19,9 @@
             align-items: center;
             min-height: 100vh;
         }
-
-        .container {
-            text-align: center;
-            padding: 40px;
-        }
-
-        h1 {
-            color: #E10600;
-            font-size: 3rem;
-            letter-spacing: 4px;
-            margin-bottom: 8px;
-        }
-
-        .subtitle {
-            color: #aaa;
-            font-size: 12px;
-            letter-spacing: 3px;
-            margin-bottom: 40px;
-        }
-
+        .container { text-align: center; padding: 40px; }
+        h1 { color: #E10600; font-size: 3rem; letter-spacing: 4px; margin-bottom: 8px; }
+        .subtitle { color: #aaa; font-size: 12px; letter-spacing: 3px; margin-bottom: 40px; }
         .badge {
             display: inline-block;
             background: #1a1a1a;
@@ -52,29 +32,18 @@
             color: #4caf50;
             margin-bottom: 40px;
         }
-
         .badge span {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             background: #4caf50;
             border-radius: 50%;
             margin-right: 6px;
             animation: pulse 1.5s infinite;
         }
-
         @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.3;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
-
         .endpoints {
             display: flex;
             flex-direction: column;
@@ -82,7 +51,6 @@
             max-width: 480px;
             margin: 0 auto 40px;
         }
-
         .endpoint {
             background: #1a1a1a;
             border: 1px solid #2a2a2a;
@@ -93,7 +61,6 @@
             gap: 12px;
             text-align: left;
         }
-
         .method {
             font-size: 11px;
             font-weight: bold;
@@ -102,45 +69,18 @@
             min-width: 45px;
             text-align: center;
         }
-
-        .get {
-            background: #1a3a1a;
-            color: #4caf50;
-        }
-
-        .post {
-            background: #1a2a3a;
-            color: #2196f3;
-        }
-
-        .path {
-            font-family: monospace;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .desc {
-            color: #666;
-            font-size: 12px;
-            margin-left: auto;
-        }
-
-        .footer {
-            color: #444;
-            font-size: 12px;
-        }
+        .get  { background: #1a3a1a; color: #4caf50; }
+        .post { background: #1a2a3a; color: #2196f3; }
+        .path { font-family: monospace; color: #fff; font-size: 14px; }
+        .desc { color: #666; font-size: 12px; margin-left: auto; }
+        .footer { color: #444; font-size: 12px; }
     </style>
 </head>
-
 <body>
     <div class="container">
         <h1>BARBER ROYALE</h1>
         <p class="subtitle">API · CASABLANCA</p>
-
-        <div class="badge">
-            <span></span> API is running
-        </div>
-
+        <div class="badge"><span></span> API is running</div>
         <div class="endpoints">
             <div class="endpoint">
                 <span class="method get">GET</span>
@@ -153,9 +93,9 @@
                 <span class="desc">Submit booking</span>
             </div>
         </div>
-
         <p class="footer">Barber Royale &copy; 2026 — Casablanca</p>
     </div>
 </body>
-
 </html>
+    `);
+};
